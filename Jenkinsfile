@@ -34,13 +34,18 @@ pipeline {
         }
         stage('CanaryDeploy') {
             steps {
-                echo 'Deploying to CanaryDeploy'
+                echo 'Running build automation'
+                sh './gradlew build --no-daemon'
+                archiveArtifacts artifacts: 'dist/trainSchedule.zip'
             }
         }
         stage('DeployToProduction') {
-            steps {
-                echo 'Deploying to producion'
-            }
+           script {
+                    app = docker.build(DOCKER_IMAGE_NAME)
+                    app.inside {
+                        sh 'echo Hello, World!'
+                    }
+                }
         }
     }
 }
